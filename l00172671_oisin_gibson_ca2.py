@@ -12,6 +12,10 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 
+# Create output folder for results
+output_dir = Path("results")
+output_dir.mkdir(exist_ok=True)
+
 # Load dataset
 dataset_xlsx = Path("ai_medical_triage_dataset.xlsx")
 dataset_csv = Path("ai_medical_triage_dataset.csv")
@@ -84,7 +88,7 @@ print(df.info())
 print(df.head())
 
 #Save the cleaned dataset
-df.to_excel("cleaned_medical_dataset.xlsx", index=False)
+df.to_excel(output_dir / "cleaned_medical_dataset.xlsx", index=False)
 
 # =====================================================
 # MACHINE LEARNING: Predicting Patient Risk Level
@@ -167,6 +171,18 @@ print(
 cm = confusion_matrix(y_test, y_pred, labels=[0, 1, 2])
 print("\nConfusion Matrix:\n", cm)
 
+# Save evaluation summary to text file
+with open(output_dir / "results_summary.txt", "w") as f:
+    f.write(f"Model Accuracy: {accuracy}\n\n")
+    f.write("Classification Report:\n")
+    f.write(classification_report(
+        y_test,
+        y_pred,
+        labels=[0, 1, 2],
+        target_names=['Low', 'Medium', 'High'],
+        zero_division=0
+    ))
+
 
 # -------------------------------
 # Graph 1: Confusion Matrix
@@ -185,7 +201,7 @@ for i in range(len(cm)):
         plt.text(j, i, cm[i, j], ha='center', va='center')
 
 plt.tight_layout()
-plt.savefig("confusion_matrix.png", dpi=300)
+plt.savefig(output_dir / "confusion_matrix.png", dpi=300)
 plt.close()
 
 
@@ -201,7 +217,7 @@ plt.title("Feature Importance")
 plt.xlabel("Importance Score")
 plt.ylabel("Features")
 plt.tight_layout()
-plt.savefig("feature_importance.png", dpi=300)
+plt.savefig(output_dir / "feature_importance.png", dpi=300)
 plt.close()
 
 
@@ -215,7 +231,7 @@ plt.figure(figsize=(15,10))
 plot_tree(model, feature_names=X.columns, class_names=['Low','Medium','High'], filled=True)
 plt.title("Decision Tree")
 plt.tight_layout()
-plt.savefig("decision_tree.png", dpi=300)
+plt.savefig(output_dir / "decision_tree.png", dpi=300)
 plt.close()
 
-print("\nSaved plots: confusion_matrix.png, feature_importance.png, decision_tree.png")
+print("\nSaved outputs in results/: cleaned_medical_dataset.xlsx, confusion_matrix.png, feature_importance.png, decision_tree.png, results_summary.txt")
