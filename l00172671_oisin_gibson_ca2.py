@@ -117,7 +117,6 @@ print("\nFeatures used:\n", X.columns)
 # -------------------------------
 
 try:
-    from sklearn.model_selection import train_test_split
     from sklearn.tree import DecisionTreeClassifier
     from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 except ImportError as exc:
@@ -130,10 +129,9 @@ try:
 except ImportError as exc:
     raise SystemExit("Missing dependency: matplotlib. Install it with: pip install matplotlib") from exc
 
-# Split dataset (80% training, 20% testing)
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42
-)
+# Use all data for both training and evaluation 
+X_train, y_train = X, y
+X_eval, y_eval = X, y
 
 # Create Decision Tree model
 model = DecisionTreeClassifier(max_depth=4, random_state=42)
@@ -148,18 +146,18 @@ print("\nModel training complete.")
 # 7. Evaluation
 # -------------------------------
 
-# Predictions
-y_pred = model.predict(X_test)
+# Predictions on the full dataset
+y_pred = model.predict(X_eval)
 
 # Accuracy
-accuracy = accuracy_score(y_test, y_pred)
+accuracy = accuracy_score(y_eval, y_pred)
 print("\nAccuracy:", accuracy)
 
 # Classification Report
 print(
     "\nClassification Report:\n",
     classification_report(
-        y_test,
+    y_eval,
         y_pred,
         labels=[0, 1, 2],
         target_names=['Low', 'Medium', 'High'],
@@ -168,7 +166,7 @@ print(
 )
 
 # Confusion Matrix
-cm = confusion_matrix(y_test, y_pred, labels=[0, 1, 2])
+cm = confusion_matrix(y_eval, y_pred, labels=[0, 1, 2])
 print("\nConfusion Matrix:\n", cm)
 
 # Save evaluation summary to text file
@@ -176,7 +174,7 @@ with open(output_dir / "results_summary.txt", "w") as f:
     f.write(f"Model Accuracy: {accuracy}\n\n")
     f.write("Classification Report:\n")
     f.write(classification_report(
-        y_test,
+        y_eval,
         y_pred,
         labels=[0, 1, 2],
         target_names=['Low', 'Medium', 'High'],
